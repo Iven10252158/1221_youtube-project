@@ -17,7 +17,10 @@
 
 <script>
 import { YoutubeVue3 } from 'youtube-vue3'
-
+var tag = document.createElement('script')
+tag.src = 'https://www.youtube.com/iframe_api'
+var firstScriptTag = document.getElementsByTagName('script')[0]
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
 export default {
   props: {
     autoplay: {
@@ -27,6 +30,8 @@ export default {
   },
   data () {
     return {
+      setTimeHour: '',
+      setTimeMins: '',
       loop: 1,
       playLive: {
         video_id: '2mCSYvcfhtc'
@@ -52,7 +57,8 @@ export default {
       })
     },
     onPlayed () {
-      this.$refs.youtube.player.playVideo()
+      console.log(this.$refs.youtube.player)
+      // this.$refs.youtube.player.playVideo()
       this.getDuration()
       console.log('## OnPlayed')
     },
@@ -60,45 +66,50 @@ export default {
       const date = Date.now()
       const hours = new Date().getHours(date)
       const mins = new Date().getMinutes(date)
+
       // 轉成字串，如果低於10，前面加上'0'
       const hourString = (hours < 10) ? ('0' + hours) : ('' + hours)
       const minString = (mins < 10) ? ('0' + mins) : ('' + mins)
+
       this.setTimeHour = `${hourString}`
       this.setTimeMins = `${minString}`
 
-      const timeZero = '24'
-      // const timeTwo = '56'
+      const timeZero = '00'
 
       if (this.setTimeHour >= 8 && this.setTimeHour <= 20) {
         if (this.setTimeMins === timeZero) {
           this.isDefault = true // 播放蜘蛛人
+          // 取得蜘蛛人的影片總長度
           this.$refs.youtube.player.getDuration().then((duration) => {
             this.arVideo = duration
           })
+          // 取得蜘蛛人影片當下的播放時間
           this.$refs.youtube.player.getCurrentTime().then((CurrentTime) => {
             this.timer = CurrentTime
           })
-          console.log('蜘蛛人', this.arVideo)
-          console.log('getCurrentTime', this.timer)
+          console.log('1.蜘蛛人', this.arVideo) // 89.501 (影片總長度)
+          console.log('getCurrentTime', this.timer) // 從 0 開始跑
         } else if (this.timer < this.arVideo) {
           this.$refs.youtube.player.getCurrentTime().then((CurrentTime) => {
             this.timer = CurrentTime
           })
           this.isDefault = true
-          this.$refs.youtube.player.playVideo()
-          console.log('繼續播蜘蛛人', this.timer)
+          // this.$refs.youtube.player.playVideo()
+          console.log('2.繼續播蜘蛛人 this.timer', this.timer)
+          console.log('2.繼續播蜘蛛人 this.arVideo', this.arVideo)
         } else if (this.timer > this.arVideo) {
-          console.log('timer > AR咕咕鐘', this.timer)
+          console.log('3.timer > AR咕咕鐘', this.timer)
           this.isDefault = false
         } else {
-          this.$refs.youtube.player.playVideo()
-          console.log('最後面的else', this.timer)
+          // this.$refs.youtube.player.playVideo()
+          console.log('4.最後面else的this.timer', this.timer, this.timer === this.arVideo) // 播完AR咕咕鐘之後，this.timer的值會是89.501
           this.isDefault = false
         }
       }
     }
   },
   mounted () {
+    this.onPlayed()
     setInterval(() => {
       this.changeTime()
     }, 1000)
