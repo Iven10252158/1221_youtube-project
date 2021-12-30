@@ -26,13 +26,16 @@ export default {
     autoplay: {
       type: Number,
       default: 1
+    },
+    loop: {
+      type: Number,
+      default: 1
     }
   },
   data () {
     return {
       setTimeHour: '',
       setTimeMins: '',
-      loop: 1,
       playLive: {
         video_id: '2mCSYvcfhtc'
       },
@@ -48,6 +51,9 @@ export default {
     YoutubeVue3
   },
   methods: {
+    unMute () {
+      this.$refs.youtube.player.unMute()
+    },
     getDuration () {
       this.$refs.youtube.player.getPlayerState().then((getPlayerState) => {
         console.log(getPlayerState)
@@ -57,8 +63,7 @@ export default {
       })
     },
     onPlayed () {
-      console.log(this.$refs.youtube.player)
-      // this.$refs.youtube.player.getVolume()
+      // this.unMute()
       this.$refs.youtube.player.playVideo()
       this.getDuration()
       console.log('## OnPlayed')
@@ -75,7 +80,7 @@ export default {
       this.setTimeHour = `${hourString}`
       this.setTimeMins = `${minString}`
 
-      const timeZero = '00'
+      const timeZero = '58'
 
       if (this.setTimeHour >= 8 && this.setTimeHour <= 20) {
         if (this.setTimeMins === timeZero) {

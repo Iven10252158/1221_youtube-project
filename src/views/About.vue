@@ -4,11 +4,10 @@
 
     <div>
     <div class='videoBox'>
-      <YoutubeVue3 ref="youtube" :videoid="isDefault? playTime.video_id : playLive.video_id"
+      <YoutubeVue3 ref="youtube" :videoid="playNow"
         style='width:100% ;height:600px'
         :autoplay="autoplay"
-        @played="onPlayed"
-        :loop="loop"/>
+        @played="onPlayed"/>
     </div>
     </div>
 
@@ -21,27 +20,40 @@ var tag = document.createElement('script')
 tag.src = 'https://www.youtube.com/iframe_api'
 var firstScriptTag = document.getElementsByTagName('script')[0]
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
 export default {
   props: {
     autoplay: {
       type: Number,
       default: 1
+    },
+    loop: {
+      type: Number,
+      default: 1
+    },
+    videoid: {
+      type: String
     }
   },
   data () {
     return {
       setTimeHour: '',
       setTimeMins: '',
-      loop: 1,
-      playLive: {
-        video_id: '2mCSYvcfhtc'
+      loopPlaylists: true,
+      video1: {
+        video_id: 'T1DXPL2t64k'
       },
-      playTime: {
+      video2: {
         video_id: 'pvYMUF-PMnc'
       },
+      video3: {
+        video_id: 'mF3bYa4U6yA'
+      },
+      playNow: '',
+      theseTime: '',
       isDefault: false,
       arVideo: null,
-      timer: 0
+      timer: ''
     }
   },
   components: {
@@ -52,14 +64,12 @@ export default {
       this.$refs.youtube.player.getPlayerState().then((getPlayerState) => {
         console.log(getPlayerState)
       })
-      this.$refs.youtube.player.getDuration().then((duration) => {
-        console.log(duration)
-      })
+      // this.$refs.youtube.player.getDuration().then((duration) => {
+      //   console.log(duration)
+      // })
     },
     onPlayed () {
       console.log(this.$refs.youtube.player)
-      // this.$refs.youtube.player.playVideo()
-      this.getDuration()
       console.log('## OnPlayed')
     },
     changeTime () {
@@ -73,38 +83,21 @@ export default {
 
       this.setTimeHour = `${hourString}`
       this.setTimeMins = `${minString}`
-
-      const timeZero = '00'
-
-      if (this.setTimeHour >= 8 && this.setTimeHour <= 20) {
-        if (this.setTimeMins === timeZero) {
-          this.isDefault = true // 播放蜘蛛人
-          // 取得蜘蛛人的影片總長度
-          this.$refs.youtube.player.getDuration().then((duration) => {
-            this.arVideo = duration
-          })
-          // 取得蜘蛛人影片當下的播放時間
-          this.$refs.youtube.player.getCurrentTime().then((CurrentTime) => {
-            this.timer = CurrentTime
-          })
-          console.log('1.蜘蛛人', this.arVideo) // 89.501 (影片總長度)
-          console.log('getCurrentTime', this.timer) // 從 0 開始跑
-        } else if (this.timer < this.arVideo) {
-          this.$refs.youtube.player.getCurrentTime().then((CurrentTime) => {
-            this.timer = CurrentTime
-          })
-          this.isDefault = true
-          // this.$refs.youtube.player.playVideo()
-          console.log('2.繼續播蜘蛛人 this.timer', this.timer)
-          console.log('2.繼續播蜘蛛人 this.arVideo', this.arVideo)
-        } else if (this.timer > this.arVideo) {
-          console.log('3.timer > AR咕咕鐘', this.timer)
-          this.isDefault = false
-        } else {
-          // this.$refs.youtube.player.playVideo()
-          console.log('4.最後面else的this.timer', this.timer, this.timer === this.arVideo) // 播完AR咕咕鐘之後，this.timer的值會是89.501
-          this.isDefault = false
-        }
+      this.theseTime = `${hourString}${minString}`
+      if (this.setTimeHour >= 10 && this.setTimeHour <= 21) {
+        this.$refs.youtube.player.getPlayerState().then((getPlayerState) => {
+          this.timer = getPlayerState
+          if (this.timer !== 0) {
+            console.log(this.timer)
+            this.timer = 1
+            console.log(this.timer)
+          } else if (this.timer === 1) {
+            console.log(this.timer)
+            this.timer = 1
+            this.playNow = this.video2.video_id
+            console.log(this.timer)
+          }
+        })
       }
     }
   },
